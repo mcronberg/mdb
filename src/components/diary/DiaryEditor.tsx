@@ -1,8 +1,12 @@
 import { useEditor, EditorContent } from '@tiptap/react'
+import type { Editor } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
+import Image from '@tiptap/extension-image'
 import { Markdown } from 'tiptap-markdown'
 import { useEffect, useRef, useState } from 'react'
+import { ImagePlus } from 'lucide-react'
 import { useUpdateDiaryEntry } from '@/hooks/useDiary'
+import { useImageUpload } from '@/hooks/useImageUpload'
 import type { DiaryEntry } from '@/types'
 
 const MOODS: { value: DiaryEntry['mood']; label: string; emoji: string }[] = [
@@ -22,10 +26,14 @@ export default function DiaryEditor({ entry }: Props) {
     const [mood, setMood] = useState<DiaryEntry['mood']>(entry.mood)
     const [entryDate, setEntryDate] = useState(entry.entry_date)
     const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+    const editorRef = useRef<Editor | null>(null)
+    const { handlePaste, handleDrop, insertImageFile } = useImageUpload(editorRef)
+    const fileInputRef = useRef<HTMLInputElement>(null)
 
     const editor = useEditor({
         extensions: [
             StarterKit,
+            Image.configure({ inline: false }),
             Markdown.configure({ transformPastedText: true }),
         ],
         content: entry.content,
@@ -34,12 +42,19 @@ export default function DiaryEditor({ entry }: Props) {
                 class: 'prose prose-invert prose-sm max-w-none focus:outline-none min-h-[200px]',
                 spellcheck: 'false',
             },
+            handlePaste,
+            handleDrop,
         },
         onUpdate({ editor }) {
             const markdown = (editor.storage as any).markdown.getMarkdown()
             schedule(entryDate, mood, markdown)
         },
     })
+
+    // Keep editorRef in sync so image upload handlers always have current editor
+    useEffect(() => {
+        editorRef.current = editor ?? null
+    }, [editor])
 
     useEffect(() => {
         if (editor && (editor.storage as any).markdown.getMarkdown() !== entry.content) {
@@ -86,15 +101,35 @@ export default function DiaryEditor({ entry }: Props) {
                             key={m.value}
                             onClick={() => handleMoodChange(m.value)}
                             title={m.label}
-                            className={`text-xl px-2 py-1 rounded-lg transition-colors ${mood === m.value
-                                ? 'bg-indigo-600/30 ring-1 ring-indigo-500'
-                                : 'hover:bg-slate-800'
-                                }`}
+                            className={`text-xl px-2 py-1 rounded-lg transition-colors ${
+                                mood === m.value
+                                    ? 'bg-indigo-600/30 ring-1 ring-indigo-500'
+                                    : 'hover:bg-slate-800'
+                            }`}
                         >
                             {m.emoji}
                         </button>
                     ))}
                 </div>
+                <button
+                    type="button"
+                    title="Indsæt billede"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="ml-auto text-slate-500 hover:text-slate-300 transition-colors p-1"
+                >
+                    <ImagePlus size={16} />
+                </button>
+                <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={e => {
+                        const file = e.target.files?.[0]
+                        if (file) insertImageFile(file)
+                        e.target.value = ''
+                    }}
+                />
             </div>
 
             {/* Editor */}
