@@ -1,10 +1,11 @@
 import { NavLink } from 'react-router-dom'
-import { LayoutDashboard, FileText, BookOpen } from 'lucide-react'
+import { LayoutDashboard, FileText, BookOpen, ClipboardList } from 'lucide-react'
 
 const navItems = [
     { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
     { to: '/notes', icon: FileText, label: 'Notater' },
     { to: '/diary', icon: BookOpen, label: 'Dagbog' },
+    { to: '/log', icon: ClipboardList, label: 'Log' },
 ]
 
 export default function Sidebar() {

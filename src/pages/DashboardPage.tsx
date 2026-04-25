@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import { FileText, BookOpen } from 'lucide-react'
+import { FileText, BookOpen, ClipboardList } from 'lucide-react'
 
 export default function DashboardPage() {
     const navigate = useNavigate()
@@ -27,6 +27,16 @@ export default function DashboardPage() {
                         <span className="font-semibold text-white">Dagbog</span>
                     </div>
                     <p className="text-slate-400 text-sm">Skriv dine dagbogsindlæg</p>
+                </button>
+                <button
+                    onClick={() => navigate('/log')}
+                    className="bg-slate-900 border border-slate-800 hover:border-indigo-500/50 rounded-xl p-5 text-left space-y-2 transition-colors"
+                >
+                    <div className="flex items-center gap-2 text-indigo-400">
+                        <ClipboardList size={20} />
+                        <span className="font-semibold text-white">Log</span>
+                    </div>
+                    <p className="text-slate-400 text-sm">Registrér vand, træning og andet</p>
                 </button>
             </div>
         </div>

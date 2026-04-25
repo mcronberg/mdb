@@ -23,3 +23,28 @@ export interface DiaryEntry {
     created_at: string
     updated_at: string
 }
+
+export type LogDataType = 'int' | 'decimal' | 'bool' | 'duration' | 'text'
+
+export interface LogDefinition {
+    id: string
+    user_id: string
+    label: string
+    data_type: LogDataType
+    unit: string | null
+    sort_order: number
+    created_at: string
+}
+
+export interface LogEntry {
+    id: string
+    user_id: string
+    definition_id: string
+    logged_at: string
+    value_int: number | null
+    value_decimal: number | null
+    value_bool: boolean | null
+    value_text: string | null
+    note: string | null
+    created_at: string
+}

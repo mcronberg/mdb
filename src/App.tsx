@@ -8,6 +8,7 @@ import LoginPage from '@/pages/LoginPage'
 import DashboardPage from '@/pages/DashboardPage'
 import NotesPage from '@/pages/NotesPage'
 import DiaryPage from '@/pages/DiaryPage'
+import LogPage from '@/pages/LogPage'
 
 export default function App() {
     return (
@@ -27,6 +28,7 @@ export default function App() {
                             <Route path="/dashboard" element={<DashboardPage />} />
                             <Route path="/notes" element={<NotesPage />} />
                             <Route path="/diary" element={<DiaryPage />} />
+                            <Route path="/log" element={<LogPage />} />
                         </Route>
                     </Routes>
                 </HashRouter>
