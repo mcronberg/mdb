@@ -35,13 +35,13 @@ export default function DiaryEditor({ entry }: Props) {
             },
         },
         onUpdate({ editor }) {
-            const markdown = editor.storage.markdown.getMarkdown()
+            const markdown = (editor.storage as any).markdown.getMarkdown()
             schedule(entryDate, mood, markdown)
         },
     })
 
     useEffect(() => {
-        if (editor && editor.storage.markdown.getMarkdown() !== entry.content) {
+        if (editor && (editor.storage as any).markdown.getMarkdown() !== entry.content) {
             editor.commands.setContent(entry.content)
         }
         setMood(entry.mood)
@@ -58,14 +58,14 @@ export default function DiaryEditor({ entry }: Props) {
 
     function handleMoodChange(m: DiaryEntry['mood']) {
         setMood(m)
-        const content = editor?.storage.markdown.getMarkdown() ?? entry.content
+        const content = (editor?.storage as any)?.markdown?.getMarkdown() ?? entry.content
         schedule(entryDate, m, content)
     }
 
     function handleDateChange(e: React.ChangeEvent<HTMLInputElement>) {
         const date = e.target.value
         setEntryDate(date)
-        const content = editor?.storage.markdown.getMarkdown() ?? entry.content
+        const content = (editor?.storage as any)?.markdown?.getMarkdown() ?? entry.content
         schedule(date, mood, content)
     }
 

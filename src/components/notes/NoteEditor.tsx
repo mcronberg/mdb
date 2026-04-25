@@ -26,14 +26,14 @@ export default function NoteEditor({ note }: Props) {
             },
         },
         onUpdate({ editor }) {
-            const markdown = editor.storage.markdown.getMarkdown()
+            const markdown = (editor.storage as any).markdown.getMarkdown()
             scheduleUpdate(title, markdown)
         },
     })
 
     // Reset editor when note changes
     useEffect(() => {
-        if (editor && editor.storage.markdown.getMarkdown() !== note.content) {
+        if (editor && (editor.storage as any).markdown.getMarkdown() !== note.content) {
             editor.commands.setContent(note.content)
         }
         setTitle(note.title)
@@ -50,7 +50,7 @@ export default function NoteEditor({ note }: Props) {
     function handleTitleChange(e: React.ChangeEvent<HTMLInputElement>) {
         const newTitle = e.target.value
         setTitle(newTitle)
-        const markdown = editor?.storage.markdown.getMarkdown() ?? note.content
+        const markdown = (editor?.storage as any)?.markdown?.getMarkdown() ?? note.content
         scheduleUpdate(newTitle, markdown)
     }
 
