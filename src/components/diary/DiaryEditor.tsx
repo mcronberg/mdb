@@ -86,8 +86,8 @@ export default function DiaryEditor({ entry }: Props) {
                             onClick={() => handleMoodChange(m.value)}
                             title={m.label}
                             className={`text-xl px-2 py-1 rounded-lg transition-colors ${mood === m.value
-                                    ? 'bg-indigo-600/30 ring-1 ring-indigo-500'
-                                    : 'hover:bg-slate-800'
+                                ? 'bg-indigo-600/30 ring-1 ring-indigo-500'
+                                : 'hover:bg-slate-800'
                                 }`}
                         >
                             {m.emoji}
