@@ -98,7 +98,7 @@ export default function AiPage() {
                 <Bot size={16} className="text-indigo-400" />
                 <h1 className="text-white font-semibold text-sm md:text-base">AI-assistent</h1>
                 <button
-                    onClick={() => embedAll.mutateAsync().catch(() => {})}
+                    onClick={() => embedAll.mutateAsync().catch(() => { })}
                     disabled={embedAll.isPending}
                     title="Genindekser alle noter og dagbog (fix manglende søgeresultater)"
                     className="ml-auto text-xs text-slate-500 hover:text-slate-300 disabled:opacity-40 transition-colors"
