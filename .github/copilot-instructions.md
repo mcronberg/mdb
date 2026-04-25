@@ -30,11 +30,12 @@ src/
   components/
     ui/          # shadcn/ui components
     layout/      # AppShell, Sidebar, Header, BottomNav
-    notes/       # NoteCard, NoteEditor
-    diary/       # DiaryCard, DiaryEditor
-    auth/        # LoginForm, RegisterForm
-  pages/         # Dashboard, Notes, Diary, Login, Register
-  hooks/         # useAuth, useNotes, useDiary
+    notes/       # NotesList, NoteEditor
+    diary/       # DiaryList, DiaryEditor
+    log/         # LogDefinitionCard, LogEntryForm, LogSettings
+    auth/        # ProtectedRoute
+  pages/         # DashboardPage, NotesPage, DiaryPage, LogPage, LoginPage
+  hooks/         # useNotes, useDiary, useLogDefinitions, useLogEntries
   context/       # AuthContext
   lib/
     supabase.ts  # Supabase client singleton
@@ -53,8 +54,15 @@ notes (id uuid PK, user_id uuid FK auth.users, title text, content text, created
 
 -- diary_entries
 diary_entries (id uuid PK, user_id uuid FK auth.users, content text, mood text, entry_date date, created_at timestamptz, updated_at timestamptz)
+
+-- log_definitions: user-defined metrics to track
+log_definitions (id uuid PK, user_id uuid FK auth.users, label text, data_type text CHECK('int','decimal','bool','duration','text'), unit text, sort_order int, created_at timestamptz)
+
+-- log_entries: individual timestamped log events (multiple per day allowed)
+log_entries (id uuid PK, user_id uuid FK auth.users, definition_id uuid FK log_definitions, logged_at timestamptz, value_int int, value_decimal numeric, value_bool boolean, value_text text, note text, created_at timestamptz)
 ```
 All tables have Row Level Security (RLS) — users can only access their own rows.
+Migrations: `supabase/migrations/001_init.sql`, `supabase/migrations/002_log.sql`
 
 ## Conventions
 - Dark mode is the **default**; always use `dark:` Tailwind classes
@@ -63,11 +71,14 @@ All tables have Row Level Security (RLS) — users can only access their own row
 - Components in `src/components/` are reusable; page-level logic in `src/pages/`
 - Keep `.env.local` and `supabase.secret.txt` out of git (see .gitignore)
 - Auto-save note/diary edits with a 1-second debounce
+- No caching: `staleTime: 0, gcTime: 0` in queryClient, no PWA runtime caching
+- `tiptap-markdown` storage must be accessed as `(editor.storage as any).markdown` (no TypeScript types)
+- App version read from `package.json` via `readFileSync` in `vite.config.ts`, exposed as `__APP_VERSION__` global
 
 ## Key Files
-- `vite.config.ts` — base path, Tailwind plugin, PWA config
+- `vite.config.ts` — base path, Tailwind plugin, PWA config, `__APP_VERSION__` define
 - `src/lib/supabase.ts` — Supabase client
 - `src/context/AuthContext.tsx` — Auth state provider
-- `supabase/migrations/001_init.sql` — Database schema
+- `supabase/migrations/001_init.sql` — Initial schema (profiles, notes, diary_entries)
+- `supabase/migrations/002_log.sql` — Log module schema (log_definitions, log_entries)
 - `.github/workflows/deploy.yml` — CI/CD to GitHub Pages
-- `docs/plan.md` — Living project plan
