@@ -2,9 +2,11 @@ import { useState } from 'react'
 import { Lock, Loader2 } from 'lucide-react'
 import { useVault } from '@/context/VaultContext'
 import { useAuth } from '@/context/AuthContext'
+import { supabase } from '@/lib/supabase'
+import { decrypt } from '@/lib/crypto'
 
 export default function VaultUnlock() {
-    const { unlock } = useVault()
+    const { unlock, lock } = useVault()
     const { user } = useAuth()
     const [password, setPassword] = useState('')
     const [loading, setLoading] = useState(false)
@@ -16,9 +18,30 @@ export default function VaultUnlock() {
         setLoading(true)
         setError('')
         try {
-            await unlock(password, user.id)
-        } catch {
-            setError('Kunne ikke låse op — forkert adgangskode?')
+            const key = await unlock(password, user.id)
+
+            // Validate against an existing note (if any) to catch wrong passwords
+            const { data } = await supabase
+                .from('secret_notes')
+                .select('title_enc')
+                .limit(1)
+                .single()
+
+            if (data?.title_enc) {
+                try {
+                    await decrypt(key, data.title_enc)
+                } catch {
+                    // Decryption failed — wrong password
+                    lock()
+                    setError('Forkert adgangskode')
+                }
+            }
+        } catch (err: any) {
+            // Don't show "no rows" as an error (PGRST116 = no rows found = first time user)
+            if (!err?.code || err.code !== 'PGRST116') {
+                lock()
+                setError('Forkert adgangskode')
+            }
         } finally {
             setLoading(false)
         }

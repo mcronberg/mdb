@@ -4,7 +4,7 @@ import { deriveKey } from '@/lib/crypto'
 interface VaultContextValue {
     key: CryptoKey | null
     isUnlocked: boolean
-    unlock: (password: string, userId: string) => Promise<void>
+    unlock: (password: string, userId: string) => Promise<CryptoKey>
     lock: () => void
 }
 
@@ -13,9 +13,10 @@ const VaultContext = createContext<VaultContextValue | null>(null)
 export function VaultProvider({ children }: { children: React.ReactNode }) {
     const [key, setKey] = useState<CryptoKey | null>(null)
 
-    async function unlock(password: string, userId: string) {
+    async function unlock(password: string, userId: string): Promise<CryptoKey> {
         const derived = await deriveKey(password, userId)
         setKey(derived)
+        return derived
     }
 
     function lock() {
