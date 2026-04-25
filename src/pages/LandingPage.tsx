@@ -52,7 +52,7 @@ export default function LandingPage() {
 
         {/* Footer */}
         <p className="text-slate-600 text-sm">
-          mcronberg.github.io/mcb
+          mcronberg.github.io/mdb
         </p>
       </div>
     </div>

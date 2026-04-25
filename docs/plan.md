@@ -1,10 +1,10 @@
-# MyDigitalBrain (MCB) — Project Plan
+# MyDigitalBrain (MDB) — Project Plan
 
 ## Status: Phase 1 in progress
 
 ## Project Info
-- GitHub Pages: https://mcronberg.github.io/mcb/
-- Supabase project: mcb (MCronberg org)
+- GitHub Pages: https://mcronberg.github.io/mdb/
+- Supabase project: mdb (MCronberg org)
 
 ## Tech Stack
 - Vite 6 + React 19 + TypeScript
@@ -23,12 +23,12 @@
 - [x] `.github/copilot-instructions.md`
 - [x] Vite + React + TypeScript project
 - [x] Tailwind CSS v4
-- [x] vite.config.ts with base `/mcb/` + PWA plugin
+- [x] vite.config.ts with base `/mdb/` + PWA plugin
 - [x] Static landing page (no Supabase)
 - [x] React Router v6 HashRouter
 - [x] `.env.local` + `.gitignore`
 - [x] GitHub Actions deploy workflow
-- [ ] Verify: https://mcronberg.github.io/mcb/ shows landing page
+- [ ] Verify: https://mcronberg.github.io/mdb/ shows landing page
 
 ### Phase 2 — Supabase & Auth
 - [ ] SQL migrations: profiles, notes, diary_entries + RLS

@@ -5,7 +5,7 @@ import { VitePWA } from 'vite-plugin-pwa'
 import { resolve } from 'path'
 
 export default defineConfig({
-  base: '/mcb/',
+  base: '/mdb/',
   plugins: [
     react(),
     tailwindcss(),
@@ -14,7 +14,7 @@ export default defineConfig({
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
       manifest: {
         name: 'MyDigitalBrain',
-        short_name: 'MCB',
+        short_name: 'MDB',
         description: 'Your personal digital brain — notes, diary and more',
         theme_color: '#0f172a',
         background_color: '#0f172a',

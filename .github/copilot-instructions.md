@@ -1,7 +1,7 @@
-# MyDigitalBrain (MCB) — Copilot Instructions
+# MyDigitalBrain (MDB) — Copilot Instructions
 
 ## Project Overview
-MyDigitalBrain (MCB) is a personal PWA for storing notes, diary entries, and other personal data. It is hosted on GitHub Pages and uses Supabase as the backend. Multiple users can sign up and each has their own isolated data.
+MyDigitalBrain (MDB) is a personal PWA for storing notes, diary entries, and other personal data. It is hosted on GitHub Pages and uses Supabase as the backend. Multiple users can sign up and each has their own isolated data.
 
 ## Tech Stack
 - **Vite 6 + React 19 + TypeScript** — SPA, no SSR
@@ -15,8 +15,8 @@ MyDigitalBrain (MCB) is a personal PWA for storing notes, diary entries, and oth
 - **date-fns** — Date formatting
 
 ## Hosting
-- **GitHub Pages** at `https://mcronberg.github.io/mcb/`
-- Vite `base` is set to `/mcb/`
+- **GitHub Pages** at `https://mcronberg.github.io/mdb/`
+- Vite `base` is set to `/mdb/`
 - GitHub Actions deploys on push to `main` → `gh-pages` branch
 
 ## Environment Variables
