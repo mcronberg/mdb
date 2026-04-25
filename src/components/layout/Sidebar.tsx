@@ -1,11 +1,12 @@
 import { NavLink } from 'react-router-dom'
-import { FileText, BookOpen, ClipboardList, Bot } from 'lucide-react'
+import { FileText, BookOpen, ClipboardList, Bot, Lock } from 'lucide-react'
 
 const navItems = [
     { to: '/ai', icon: Bot, label: 'AI' },
     { to: '/notes', icon: FileText, label: 'Notater' },
     { to: '/diary', icon: BookOpen, label: 'Dagbog' },
     { to: '/log', icon: ClipboardList, label: 'Log' },
+    { to: '/secret', icon: Lock, label: 'Hemmeligt' },
 ]
 
 export default function Sidebar() {

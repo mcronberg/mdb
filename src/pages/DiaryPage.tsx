@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useDiary, useCreateDiaryEntry, useDeleteDiaryEntry } from '@/hooks/useDiary'
 import DiaryList from '@/components/diary/DiaryList'
 import DiaryEditor from '@/components/diary/DiaryEditor'
@@ -8,24 +8,35 @@ export default function DiaryPage() {
     const { data: entries = [], isLoading } = useDiary()
     const { mutateAsync: createEntry } = useCreateDiaryEntry()
     const { mutate: deleteEntry } = useDeleteDiaryEntry()
-    const [selected, setSelected] = useState<DiaryEntry | null>(null)
+    const [selectedId, setSelectedId] = useState<string | null>(null)
     const [showEditor, setShowEditor] = useState(false)
+
+    // Always use the fresh entry from the query cache
+    const selected = entries.find(e => e.id === selectedId) ?? null
+
+    // If selected entry disappears (deleted externally), reset
+    useEffect(() => {
+        if (selectedId && entries.length > 0 && !entries.find(e => e.id === selectedId)) {
+            setSelectedId(null)
+            setShowEditor(false)
+        }
+    }, [entries, selectedId])
 
     async function handleCreate() {
         const entry = await createEntry()
-        setSelected(entry)
+        setSelectedId(entry.id)
         setShowEditor(true)
     }
 
     function handleSelect(entry: DiaryEntry) {
-        setSelected(entry)
+        setSelectedId(entry.id)
         setShowEditor(true)
     }
 
     function handleDelete(id: string) {
         deleteEntry(id)
-        if (selected?.id === id) {
-            setSelected(null)
+        if (selectedId === id) {
+            setSelectedId(null)
             setShowEditor(false)
         }
     }
@@ -44,7 +55,7 @@ export default function DiaryPage() {
             <div className={`w-full md:w-72 shrink-0 ${showEditor ? 'hidden md:flex' : 'flex'} flex-col`}>
                 <DiaryList
                     entries={entries}
-                    selectedId={selected?.id ?? null}
+                    selectedId={selectedId}
                     onSelect={handleSelect}
                     onCreate={handleCreate}
                     onDelete={handleDelete}

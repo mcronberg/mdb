@@ -37,12 +37,6 @@ export default function LogDefinitionCard({ definition }: Props) {
     const [showForm, setShowForm] = useState(false)
 
     // Show entries for today and last 7 days grouped by date
-    const todayStr = format(new Date(), 'yyyy-MM-dd')
-    const todayEntries = entries.filter(
-        (e) => e.logged_at.startsWith(todayStr)
-    )
-    const olderEntries = entries.filter((e) => !e.logged_at.startsWith(todayStr)).slice(0, 5)
-
     return (
         <div className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
             {/* Header */}
@@ -70,22 +64,22 @@ export default function LogDefinitionCard({ definition }: Props) {
                 </div>
             )}
 
-            {/* Today's entries */}
+            {/* All entries sorted newest first */}
             <div className="px-4 py-2">
                 {isLoading && (
                     <p className="text-xs text-slate-600 py-2">Indlæser…</p>
                 )}
-                {!isLoading && todayEntries.length === 0 && !showForm && (
-                    <p className="text-xs text-slate-600 py-2">Ingen registreringer i dag</p>
+                {!isLoading && entries.length === 0 && !showForm && (
+                    <p className="text-xs text-slate-600 py-2">Ingen registreringer endnu</p>
                 )}
-                {todayEntries.map((entry) => (
+                {entries.map((entry) => (
                     <div key={entry.id} className="flex items-center justify-between py-1.5 group">
                         <div className="flex items-baseline gap-3 min-w-0">
                             <span className="text-sm font-medium text-indigo-300">
                                 {formatValue(entry, definition)}
                             </span>
                             <span className="text-xs text-slate-500">
-                                {format(parseISO(entry.logged_at), 'HH:mm')}
+                                {format(parseISO(entry.logged_at), 'd. MMM HH:mm', { locale: da })}
                             </span>
                             {entry.note && (
                                 <span className="text-xs text-slate-400 truncate">{entry.note}</span>
@@ -101,39 +95,6 @@ export default function LogDefinitionCard({ definition }: Props) {
                     </div>
                 ))}
             </div>
-
-            {/* Older entries (collapsed, last 5) */}
-            {olderEntries.length > 0 && (
-                <details className="px-4 pb-3">
-                    <summary className="text-xs text-slate-600 hover:text-slate-400 cursor-pointer select-none">
-                        Tidligere ({olderEntries.length})
-                    </summary>
-                    <div className="mt-1.5 space-y-1">
-                        {olderEntries.map((entry) => (
-                            <div key={entry.id} className="flex items-center justify-between group">
-                                <div className="flex items-baseline gap-3 min-w-0">
-                                    <span className="text-xs text-slate-400">
-                                        {formatValue(entry, definition)}
-                                    </span>
-                                    <span className="text-xs text-slate-600">
-                                        {format(parseISO(entry.logged_at), 'd. MMM HH:mm', { locale: da })}
-                                    </span>
-                                    {entry.note && (
-                                        <span className="text-xs text-slate-500 truncate">{entry.note}</span>
-                                    )}
-                                </div>
-                                <button
-                                    onClick={() => deleteEntry({ id: entry.id, definitionId: definition.id })}
-                                    title="Slet"
-                                    className="text-slate-700 hover:text-red-400 transition-colors shrink-0 opacity-0 group-hover:opacity-100 ml-2"
-                                >
-                                    <Trash2 size={13} />
-                                </button>
-                            </div>
-                        ))}
-                    </div>
-                </details>
-            )}
         </div>
     )
 }

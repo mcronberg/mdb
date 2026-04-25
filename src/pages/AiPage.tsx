@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { Bot, Send, Loader2, FileText, BookOpen, Mic, MicOff } from 'lucide-react'
+import ReactMarkdown from 'react-markdown'
 import { useRagQuery } from '@/hooks/useAi'
 import type { RagSource } from '@/hooks/useAi'
 
@@ -93,11 +94,14 @@ export default function AiPage() {
                 {messages.map((msg, i) => (
                     <div key={i} className={msg.role === 'user' ? 'flex justify-end' : 'flex justify-start'}>
                         <div className="max-w-[85%] space-y-2">
-                            <div className={`rounded-xl px-4 py-2.5 text-sm whitespace-pre-wrap ${msg.role === 'user'
-                                ? 'bg-indigo-600 text-white'
-                                : 'bg-slate-800 text-slate-200'
+                            <div className={`rounded-xl px-4 py-2.5 text-sm ${msg.role === 'user'
+                                ? 'bg-indigo-600 text-white whitespace-pre-wrap'
+                                : 'bg-slate-800 text-slate-200 prose prose-invert prose-sm max-w-none'
                                 }`}>
-                                {msg.content}
+                                {msg.role === 'user'
+                                    ? msg.content
+                                    : <ReactMarkdown>{msg.content}</ReactMarkdown>
+                                }
                             </div>
 
                             {msg.sources && msg.sources.length > 0 && (
