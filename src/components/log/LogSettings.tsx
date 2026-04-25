@@ -6,6 +6,7 @@ import {
     useUpdateLogDefinition,
     useDeleteLogDefinition,
 } from '@/hooks/useLogDefinitions'
+import ConfirmModal from '@/components/ui/ConfirmModal'
 import type { LogDataType, LogDefinition } from '@/types'
 
 const DATA_TYPE_LABELS: Record<LogDataType, string> = {
@@ -28,6 +29,7 @@ function DefinitionRow({ def }: { def: LogDefinition }) {
     const { mutateAsync: updateDef } = useUpdateLogDefinition()
     const { mutate: deleteDef } = useDeleteLogDefinition()
     const [editing, setEditing] = useState(false)
+    const [confirmDelete, setConfirmDelete] = useState(false)
     const [state, setState] = useState<EditState>({ label: def.label, data_type: def.data_type, unit: def.unit ?? '' })
 
     async function save() {
@@ -72,6 +74,14 @@ function DefinitionRow({ def }: { def: LogDefinition }) {
 
     return (
         <div className="flex items-center justify-between px-4 py-3 border-b border-slate-800 group">
+            {confirmDelete && (
+                <ConfirmModal
+                    title="Slet metric?"
+                    description={`"${def.label}" og alle tilhørende registreringer slettes permanent.`}
+                    onConfirm={() => { deleteDef(def.id); setConfirmDelete(false) }}
+                    onCancel={() => setConfirmDelete(false)}
+                />
+            )}
             <div className="min-w-0">
                 <span className="text-sm text-white">{def.label}</span>
                 {def.unit && <span className="ml-2 text-xs text-slate-500">({def.unit})</span>}
@@ -79,7 +89,7 @@ function DefinitionRow({ def }: { def: LogDefinition }) {
             </div>
             <div className="flex gap-3 opacity-0 group-hover:opacity-100 transition-opacity shrink-0 ml-2">
                 <button onClick={() => setEditing(true)} className="text-slate-500 hover:text-white transition-colors"><Pencil size={14} /></button>
-                <button onClick={() => deleteDef(def.id)} className="text-slate-500 hover:text-red-400 transition-colors"><Trash2 size={14} /></button>
+                <button onClick={() => setConfirmDelete(true)} className="text-slate-500 hover:text-red-400 transition-colors"><Trash2 size={14} /></button>
             </div>
         </div>
     )

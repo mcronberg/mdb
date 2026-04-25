@@ -4,6 +4,7 @@ import { format, parseISO } from 'date-fns'
 import { da } from 'date-fns/locale'
 import { useLogEntries, useDeleteLogEntry } from '@/hooks/useLogEntries'
 import LogEntryForm from './LogEntryForm'
+import ConfirmModal from '@/components/ui/ConfirmModal'
 import type { LogDefinition, LogEntry } from '@/types'
 
 interface Props {
@@ -35,10 +36,19 @@ export default function LogDefinitionCard({ definition }: Props) {
     const { data: entries = [], isLoading } = useLogEntries(definition.id)
     const { mutate: deleteEntry } = useDeleteLogEntry()
     const [showForm, setShowForm] = useState(false)
+    const [pendingDelete, setPendingDelete] = useState<LogEntry | null>(null)
 
     // Show entries for today and last 7 days grouped by date
     return (
         <div className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
+            {pendingDelete && (
+                <ConfirmModal
+                    title="Slet registrering?"
+                    description={`${formatValue(pendingDelete, definition)} — ${format(parseISO(pendingDelete.logged_at), 'd. MMM HH:mm', { locale: da })}`}
+                    onConfirm={() => { deleteEntry({ id: pendingDelete.id, definitionId: definition.id }); setPendingDelete(null) }}
+                    onCancel={() => setPendingDelete(null)}
+                />
+            )}
             {/* Header */}
             <div className="flex items-center justify-between px-4 py-3 border-b border-slate-800">
                 <div>
@@ -86,7 +96,7 @@ export default function LogDefinitionCard({ definition }: Props) {
                             )}
                         </div>
                         <button
-                            onClick={() => deleteEntry({ id: entry.id, definitionId: definition.id })}
+                            onClick={() => setPendingDelete(entry)}
                             title="Slet"
                             className="text-slate-700 hover:text-red-400 transition-colors shrink-0 opacity-0 group-hover:opacity-100 ml-2"
                         >

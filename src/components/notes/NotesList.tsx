@@ -1,6 +1,8 @@
+import { useState } from 'react'
 import { Plus, Trash2 } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 import { da } from 'date-fns/locale'
+import ConfirmModal from '@/components/ui/ConfirmModal'
 import type { Note } from '@/types'
 
 interface Props {
@@ -12,8 +14,18 @@ interface Props {
 }
 
 export default function NotesList({ notes, selectedId, onSelect, onCreate, onDelete }: Props) {
+    const [pendingDelete, setPendingDelete] = useState<Note | null>(null)
+
     return (
         <div className="flex flex-col h-full border-r border-slate-800">
+            {pendingDelete && (
+                <ConfirmModal
+                    title="Slet note?"
+                    description={`"${pendingDelete.title || 'Uden titel'}" slettes permanent.`}
+                    onConfirm={() => { onDelete(pendingDelete.id); setPendingDelete(null) }}
+                    onCancel={() => setPendingDelete(null)}
+                />
+            )}
             {/* Header */}
             <div className="flex items-center justify-between px-4 py-3 border-b border-slate-800 shrink-0">
                 <span className="text-sm font-medium text-slate-300">Notater</span>
@@ -51,7 +63,7 @@ export default function NotesList({ notes, selectedId, onSelect, onCreate, onDel
                                     </p>
                                 </div>
                                 <button
-                                    onClick={(e) => { e.stopPropagation(); onDelete(note.id) }}
+                                    onClick={(e) => { e.stopPropagation(); setPendingDelete(note) }}
                                     title="Slet"
                                     className="text-slate-700 hover:text-red-400 transition-colors shrink-0 opacity-0 group-hover:opacity-100"
                                 >

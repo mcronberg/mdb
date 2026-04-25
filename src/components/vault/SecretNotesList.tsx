@@ -1,6 +1,8 @@
+import { useState } from 'react'
 import { Plus, Trash2 } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 import { da } from 'date-fns/locale'
+import ConfirmModal from '@/components/ui/ConfirmModal'
 import type { SecretNote } from '@/types'
 
 interface Props {
@@ -12,8 +14,18 @@ interface Props {
 }
 
 export default function SecretNotesList({ notes, selectedId, onSelect, onCreate, onDelete }: Props) {
+    const [pendingDelete, setPendingDelete] = useState<SecretNote | null>(null)
+
     return (
         <div className="flex flex-col h-full border-r border-slate-800">
+            {pendingDelete && (
+                <ConfirmModal
+                    title="Slet hemmelig note?"
+                    description="Noten slettes permanent og kan ikke gendannes."
+                    onConfirm={() => { onDelete(pendingDelete.id); setPendingDelete(null) }}
+                    onCancel={() => setPendingDelete(null)}
+                />
+            )}
             <div className="flex items-center justify-between px-4 py-3 border-b border-slate-800 shrink-0">
                 <span className="text-sm font-medium text-slate-300">Hemmelige noter</span>
                 <button onClick={onCreate} title="Ny hemmelig note" className="text-slate-400 hover:text-white transition-colors">
@@ -44,7 +56,7 @@ export default function SecretNotesList({ notes, selectedId, onSelect, onCreate,
                                     </p>
                                 </div>
                                 <button
-                                    onClick={(e) => { e.stopPropagation(); onDelete(note.id) }}
+                                    onClick={(e) => { e.stopPropagation(); setPendingDelete(note) }}
                                     title="Slet"
                                     className="text-slate-700 hover:text-red-400 transition-colors shrink-0 opacity-0 group-hover:opacity-100"
                                 >

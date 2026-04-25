@@ -1,6 +1,8 @@
+import { useState } from 'react'
 import { Plus, Trash2 } from 'lucide-react'
 import { format, parseISO } from 'date-fns'
 import { da } from 'date-fns/locale'
+import ConfirmModal from '@/components/ui/ConfirmModal'
 import type { DiaryEntry } from '@/types'
 
 const MOOD_EMOJI: Record<string, string> = {
@@ -20,8 +22,18 @@ interface Props {
 }
 
 export default function DiaryList({ entries, selectedId, onSelect, onCreate, onDelete }: Props) {
+    const [pendingDelete, setPendingDelete] = useState<DiaryEntry | null>(null)
+
     return (
         <div className="flex flex-col h-full border-r border-slate-800">
+            {pendingDelete && (
+                <ConfirmModal
+                    title="Slet dagbogsindlæg?"
+                    description={`Indlægget fra ${format(parseISO(pendingDelete.entry_date), 'd. MMMM yyyy', { locale: da })} slettes permanent.`}
+                    onConfirm={() => { onDelete(pendingDelete.id); setPendingDelete(null) }}
+                    onCancel={() => setPendingDelete(null)}
+                />
+            )}
             {/* Header */}
             <div className="flex items-center justify-between px-4 py-3 border-b border-slate-800 shrink-0">
                 <span className="text-sm font-medium text-slate-300">Dagbog</span>
@@ -64,7 +76,7 @@ export default function DiaryList({ entries, selectedId, onSelect, onCreate, onD
                                     </p>
                                 </div>
                                 <button
-                                    onClick={(e) => { e.stopPropagation(); onDelete(entry.id) }}
+                                    onClick={(e) => { e.stopPropagation(); setPendingDelete(entry) }}
                                     title="Slet"
                                     className="text-slate-700 hover:text-red-400 transition-colors shrink-0 opacity-0 group-hover:opacity-100"
                                 >
