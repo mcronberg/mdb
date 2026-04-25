@@ -14,12 +14,6 @@ export interface RagResult {
     sources: RagSource[]
 }
 
-async function getAuthHeader(): Promise<string> {
-    const { data: { session } } = await supabase.auth.getSession()
-    if (!session) throw new Error('Not authenticated')
-    return `Bearer ${session.access_token}`
-}
-
 /** Fire-and-forget: embed a note or diary entry in the background */
 export function embedDocument(type: 'note' | 'diary', id: string, text: string): void {
     if (!text.trim()) return
@@ -27,7 +21,6 @@ export function embedDocument(type: 'note' | 'diary', id: string, text: string):
         if (!session) return
         supabase.functions.invoke('embed-document', {
             body: { type, id, text },
-            headers: { Authorization: `Bearer ${session.access_token}` },
         }).catch(() => { /* ignore background errors */ })
     })
 }
@@ -36,10 +29,8 @@ export function embedDocument(type: 'note' | 'diary', id: string, text: string):
 export function useRagQuery() {
     return useMutation({
         mutationFn: async (query: string): Promise<RagResult> => {
-            const authHeader = await getAuthHeader()
             const { data, error } = await supabase.functions.invoke('rag-query', {
                 body: { query },
-                headers: { Authorization: authHeader },
             })
             if (error) {
                 if (error instanceof FunctionsHttpError) {
@@ -58,8 +49,6 @@ export function useRagQuery() {
 export function useEmbedAll() {
     return useMutation({
         mutationFn: async (): Promise<{ count: number }> => {
-            const authHeader = await getAuthHeader()
-
             const [notesRes, diaryRes] = await Promise.all([
                 supabase.from('notes').select('id, title, content'),
                 supabase.from('diary_entries').select('id, content, entry_date'),
@@ -69,23 +58,19 @@ export function useEmbedAll() {
             const diary = diaryRes.data ?? []
             let count = 0
 
-            // Embed notes sequentially to avoid rate limits
             for (const note of notes) {
                 const text = `${note.title}\n\n${note.content}`.trim()
                 if (!text) continue
                 await supabase.functions.invoke('embed-document', {
                     body: { type: 'note', id: note.id, text },
-                    headers: { Authorization: authHeader },
                 }).catch(() => { /* skip individual failures */ })
                 count++
             }
 
-            // Embed diary entries
             for (const entry of diary) {
                 if (!entry.content?.trim()) continue
                 await supabase.functions.invoke('embed-document', {
                     body: { type: 'diary', id: entry.id, text: entry.content },
-                    headers: { Authorization: authHeader },
                 }).catch(() => { /* skip individual failures */ })
                 count++
             }

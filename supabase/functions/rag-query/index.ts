@@ -27,10 +27,10 @@ Deno.serve(async (req) => {
     const { query } = await req.json() as { query: string }
     if (!query?.trim()) throw new Error('Missing query')
 
-    const openaiKey = Deno.env.get('OPENAI_API_KEY')
+    const openaiKey = Deno.env.get('OPENAI_API_KEY')?.trim()
     if (!openaiKey) throw new Error('OPENAI_API_KEY not configured')
 
-    const openrouterKey = Deno.env.get('OPENROUTER_API_KEY')
+    const openrouterKey = Deno.env.get('OPENROUTER_API_KEY')?.trim()
     if (!openrouterKey) throw new Error('OPENROUTER_API_KEY not configured')
 
     // Generate query embedding
