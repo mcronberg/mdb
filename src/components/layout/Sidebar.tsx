@@ -36,6 +36,11 @@ export default function Sidebar() {
                     </NavLink>
                 ))}
             </nav>
+
+            {/* Version */}
+            <div className="px-5 py-3 border-t border-slate-800">
+                <span className="text-xs text-slate-600">v{__APP_VERSION__}</span>
+            </div>
         </aside>
     )
 }

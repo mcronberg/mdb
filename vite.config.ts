@@ -3,6 +3,9 @@ import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { VitePWA } from 'vite-plugin-pwa'
 import { resolve } from 'path'
+import { readFileSync } from 'fs'
+
+const pkg = JSON.parse(readFileSync('./package.json', 'utf-8'))
 
 export default defineConfig({
     base: '/mdb/',
@@ -12,6 +15,10 @@ export default defineConfig({
         VitePWA({
             registerType: 'autoUpdate',
             includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
+            workbox: {
+                runtimeCaching: [],
+                globPatterns: [],
+            },
             manifest: {
                 name: 'MyDigitalBrain',
                 short_name: 'MDB',
@@ -30,5 +37,8 @@ export default defineConfig({
         alias: {
             '@': resolve(__dirname, './src')
         }
-    }
+    },
+    define: {
+        __APP_VERSION__: JSON.stringify(pkg.version),
+    },
 })
