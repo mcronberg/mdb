@@ -1,12 +1,11 @@
 import { NavLink } from 'react-router-dom'
-import { LayoutDashboard, FileText, BookOpen, ClipboardList, Bot } from 'lucide-react'
+import { FileText, BookOpen, ClipboardList, Bot } from 'lucide-react'
 
 const navItems = [
-    { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+    { to: '/ai', icon: Bot, label: 'AI' },
     { to: '/notes', icon: FileText, label: 'Notater' },
     { to: '/diary', icon: BookOpen, label: 'Dagbog' },
     { to: '/log', icon: ClipboardList, label: 'Log' },
-    { to: '/ai', icon: Bot, label: 'AI' },
 ]
 
 export default function BottomNav() {
