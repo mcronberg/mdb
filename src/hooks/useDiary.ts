@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
+import { embedDocument } from '@/hooks/useAi'
 import type { DiaryEntry } from '@/types'
 import { format } from 'date-fns'
 
@@ -59,8 +60,12 @@ export function useUpdateDiaryEntry() {
                 .update({ content, mood, entry_date, updated_at: new Date().toISOString() })
                 .eq('id', id)
             if (error) throw error
+            return { id, content }
         },
-        onSuccess: () => qc.invalidateQueries({ queryKey: ['diary'] }),
+        onSuccess: (data) => {
+            qc.invalidateQueries({ queryKey: ['diary'] })
+            embedDocument('diary', data.id, data.content)
+        },
     })
 }
 

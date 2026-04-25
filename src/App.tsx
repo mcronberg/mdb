@@ -9,6 +9,7 @@ import DashboardPage from '@/pages/DashboardPage'
 import NotesPage from '@/pages/NotesPage'
 import DiaryPage from '@/pages/DiaryPage'
 import LogPage from '@/pages/LogPage'
+import AiPage from '@/pages/AiPage'
 
 export default function App() {
     return (
@@ -29,6 +30,7 @@ export default function App() {
                             <Route path="/notes" element={<NotesPage />} />
                             <Route path="/diary" element={<DiaryPage />} />
                             <Route path="/log" element={<LogPage />} />
+                            <Route path="/ai" element={<AiPage />} />
                         </Route>
                     </Routes>
                 </HashRouter>

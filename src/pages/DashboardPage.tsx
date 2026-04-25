@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import { FileText, BookOpen, ClipboardList } from 'lucide-react'
+import { FileText, BookOpen, ClipboardList, Bot } from 'lucide-react'
 
 export default function DashboardPage() {
     const navigate = useNavigate()
@@ -37,6 +37,16 @@ export default function DashboardPage() {
                         <span className="font-semibold text-white">Log</span>
                     </div>
                     <p className="text-slate-400 text-sm">Registrér vand, træning og andet</p>
+                </button>
+                <button
+                    onClick={() => navigate('/ai')}
+                    className="bg-slate-900 border border-slate-800 hover:border-indigo-500/50 rounded-xl p-5 text-left space-y-2 transition-colors"
+                >
+                    <div className="flex items-center gap-2 text-indigo-400">
+                        <Bot size={20} />
+                        <span className="font-semibold text-white">AI</span>
+                    </div>
+                    <p className="text-slate-400 text-sm">Stil spørgsmål til dine noter</p>
                 </button>
             </div>
         </div>

@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
+import { embedDocument } from '@/hooks/useAi'
 import type { Note } from '@/types'
 
 export function useNotes() {
@@ -43,8 +44,12 @@ export function useUpdateNote() {
                 .update({ title, content, updated_at: new Date().toISOString() })
                 .eq('id', id)
             if (error) throw error
+            return { id, title, content }
         },
-        onSuccess: () => qc.invalidateQueries({ queryKey: ['notes'] }),
+        onSuccess: (data) => {
+            qc.invalidateQueries({ queryKey: ['notes'] })
+            embedDocument('note', data.id, `${data.title}\n\n${data.content}`)
+        },
     })
 }
 
