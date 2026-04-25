@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { Bot, Send, Loader2, FileText, BookOpen, Mic, MicOff } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 import { useRagQuery } from '@/hooks/useAi'
 import type { RagSource } from '@/hooks/useAi'
 
@@ -21,10 +22,6 @@ export default function AiPage() {
     const bottomRef = useRef<HTMLDivElement>(null)
     const inputRef = useRef<HTMLInputElement>(null)
     const recognitionRef = useRef<InstanceType<typeof SpeechRecognitionAPI> | null>(null)
-
-    useEffect(() => {
-        inputRef.current?.focus()
-    }, [])
 
     const toggleSpeech = () => {
         if (!SpeechRecognitionAPI) return
@@ -100,7 +97,11 @@ export default function AiPage() {
                                 }`}>
                                 {msg.role === 'user'
                                     ? msg.content
-                                    : <ReactMarkdown>{msg.content}</ReactMarkdown>
+                                    : <ReactMarkdown remarkPlugins={[remarkGfm]} components={{
+                                        table: ({ children }) => <div className="overflow-x-auto"><table className="border-collapse text-xs w-full">{children}</table></div>,
+                                        th: ({ children }) => <th className="border border-slate-600 px-2 py-1 text-left bg-slate-700 font-medium">{children}</th>,
+                                        td: ({ children }) => <td className="border border-slate-600 px-2 py-1">{children}</td>,
+                                    }}>{msg.content}</ReactMarkdown>
                                 }
                             </div>
 
