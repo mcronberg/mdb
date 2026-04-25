@@ -4,7 +4,7 @@ import StarterKit from '@tiptap/starter-kit'
 import Image from '@tiptap/extension-image'
 import { Markdown } from 'tiptap-markdown'
 import { useEffect, useRef, useState } from 'react'
-import { ImagePlus } from 'lucide-react'
+import { Camera, Images } from 'lucide-react'
 import { useUpdateNote } from '@/hooks/useNotes'
 import { useImageUpload } from '@/hooks/useImageUpload'
 import type { Note } from '@/types'
@@ -19,7 +19,8 @@ export default function NoteEditor({ note }: Props) {
     const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
     const editorRef = useRef<Editor | null>(null)
     const { handlePaste, handleDrop, insertImageFile } = useImageUpload(editorRef)
-    const fileInputRef = useRef<HTMLInputElement>(null)
+    const cameraInputRef = useRef<HTMLInputElement>(null)
+    const galleryInputRef = useRef<HTMLInputElement>(null)
 
     const editor = useEditor({
         extensions: [
@@ -82,14 +83,34 @@ export default function NoteEditor({ note }: Props) {
                 />
                 <button
                     type="button"
-                    title="Indsæt billede"
-                    onClick={() => fileInputRef.current?.click()}
+                    title="Tag billede med kamera"
+                    onClick={() => cameraInputRef.current?.click()}
                     className="shrink-0 text-slate-500 hover:text-slate-300 transition-colors p-1"
                 >
-                    <ImagePlus size={16} />
+                    <Camera size={16} />
+                </button>
+                <button
+                    type="button"
+                    title="Vælg billede fra galleri"
+                    onClick={() => galleryInputRef.current?.click()}
+                    className="shrink-0 text-slate-500 hover:text-slate-300 transition-colors p-1"
+                >
+                    <Images size={16} />
                 </button>
                 <input
-                    ref={fileInputRef}
+                    ref={cameraInputRef}
+                    type="file"
+                    accept="image/*"
+                    capture="environment"
+                    className="hidden"
+                    onChange={e => {
+                        const file = e.target.files?.[0]
+                        if (file) insertImageFile(file)
+                        e.target.value = ''
+                    }}
+                />
+                <input
+                    ref={galleryInputRef}
                     type="file"
                     accept="image/*"
                     className="hidden"
