@@ -2,19 +2,29 @@ import { useState, useRef, useEffect } from 'react'
 import { Bot, Send, Loader2, FileText, BookOpen, Mic, MicOff } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
+import { useQueryClient } from '@tanstack/react-query'
 import { useRagQuery } from '@/hooks/useAi'
-import type { RagSource } from '@/hooks/useAi'
+import type { RagSource, ActionTaken } from '@/hooks/useAi'
 
 interface Message {
     role: 'user' | 'assistant'
     content: string
     sources?: RagSource[]
+    actions?: ActionTaken[]
 }
 
 const SpeechRecognitionAPI =
     (window as any).SpeechRecognition ?? (window as any).webkitSpeechRecognition
 
+const actionLabels: Record<ActionTaken['type'], { label: string; color: string }> = {
+    create_note: { label: 'Note oprettet', color: 'bg-emerald-900/50 text-emerald-300 border-emerald-700' },
+    update_note: { label: 'Note opdateret', color: 'bg-blue-900/50 text-blue-300 border-blue-700' },
+    create_diary: { label: 'Dagbog oprettet', color: 'bg-emerald-900/50 text-emerald-300 border-emerald-700' },
+    update_diary: { label: 'Dagbog opdateret', color: 'bg-blue-900/50 text-blue-300 border-blue-700' },
+}
+
 export default function AiPage() {
+    const qc = useQueryClient()
     const [messages, setMessages] = useState<Message[]>([])
     const [input, setInput] = useState('')
     const [listening, setListening] = useState(false)
@@ -59,10 +69,15 @@ export default function AiPage() {
 
         try {
             const result = await ragQuery.mutateAsync(query)
+            if (result.actions_taken?.length > 0) {
+                qc.invalidateQueries({ queryKey: ['notes'] })
+                qc.invalidateQueries({ queryKey: ['diary'] })
+            }
             setMessages(prev => [...prev, {
                 role: 'assistant',
                 content: result.answer,
                 sources: result.sources,
+                actions: result.actions_taken,
             }])
         } catch (err) {
             setMessages(prev => [...prev, {
@@ -104,6 +119,19 @@ export default function AiPage() {
                                     }}>{msg.content}</ReactMarkdown>
                                 }
                             </div>
+
+                            {msg.actions && msg.actions.length > 0 && (
+                                <div className="flex flex-wrap gap-1.5 px-1">
+                                    {msg.actions.map((a, ai) => {
+                                        const meta = actionLabels[a.type]
+                                        return (
+                                            <span key={ai} className={`inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded border ${meta.color}`}>
+                                                {meta.label}: {a.title}
+                                            </span>
+                                        )
+                                    })}
+                                </div>
+                            )}
 
                             {msg.sources && msg.sources.length > 0 && (
                                 <div className="space-y-1 px-1">

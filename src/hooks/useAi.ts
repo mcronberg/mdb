@@ -9,9 +9,16 @@ export interface RagSource {
     similarity: number
 }
 
+export interface ActionTaken {
+    type: 'create_note' | 'update_note' | 'create_diary' | 'update_diary'
+    id: string
+    title: string
+}
+
 export interface RagResult {
     answer: string
     sources: RagSource[]
+    actions_taken: ActionTaken[]
 }
 
 /** Fire-and-forget: embed a note or diary entry in the background */
