@@ -9,7 +9,7 @@ export default function AppShell() {
             <Sidebar />
             <div className="flex flex-col flex-1 min-w-0">
                 <Header />
-                <main className="flex-1 overflow-y-auto p-5 pb-20 md:pb-5">
+                <main className="flex-1 overflow-y-auto p-3 pb-20 md:p-5 md:pb-5">
                     <Outlet />
                 </main>
             </div>

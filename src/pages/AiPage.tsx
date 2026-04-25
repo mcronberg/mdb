@@ -77,9 +77,9 @@ export default function AiPage() {
     return (
         <div className="flex flex-col h-full w-full">
             {/* Header */}
-            <div className="flex items-center gap-2 mb-4">
-                <Bot size={20} className="text-indigo-400" />
-                <h1 className="text-white font-semibold">AI-assistent</h1>
+            <div className="flex items-center gap-2 mb-2 md:mb-4">
+                <Bot size={16} className="text-indigo-400" />
+                <h1 className="text-white font-semibold text-sm md:text-base">AI-assistent</h1>
             </div>
 
             {/* Messages */}
