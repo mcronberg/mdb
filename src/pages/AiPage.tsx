@@ -3,8 +3,8 @@ import { Bot, Send, Loader2, FileText, BookOpen, Mic, MicOff } from 'lucide-reac
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { useQueryClient } from '@tanstack/react-query'
-import { useRagQuery } from '@/hooks/useAi'
-import type { RagSource, ActionTaken } from '@/hooks/useAi'
+import { useRagQuery, useEmbedAll } from '@/hooks/useAi'
+import type { RagSource, ActionTaken, ChatMessage } from '@/hooks/useAi'
 
 interface Message {
     role: 'user' | 'assistant'
@@ -29,6 +29,7 @@ export default function AiPage() {
     const [input, setInput] = useState('')
     const [listening, setListening] = useState(false)
     const ragQuery = useRagQuery()
+    const embedAll = useEmbedAll()
     const bottomRef = useRef<HTMLDivElement>(null)
     const inputRef = useRef<HTMLInputElement>(null)
     const recognitionRef = useRef<InstanceType<typeof SpeechRecognitionAPI> | null>(null)
@@ -67,8 +68,11 @@ export default function AiPage() {
         setInput('')
         setMessages(prev => [...prev, { role: 'user', content: query }])
 
+        // Build history: all previous messages (before this new user message)
+        const history: ChatMessage[] = messages.map(m => ({ role: m.role, content: m.content }))
+
         try {
-            const result = await ragQuery.mutateAsync(query)
+            const result = await ragQuery.mutateAsync({ query, history })
             if (result.actions_taken?.length > 0) {
                 qc.invalidateQueries({ queryKey: ['notes'] })
                 qc.invalidateQueries({ queryKey: ['diary'] })
@@ -93,6 +97,14 @@ export default function AiPage() {
             <div className="flex items-center gap-2 mb-2 md:mb-4">
                 <Bot size={16} className="text-indigo-400" />
                 <h1 className="text-white font-semibold text-sm md:text-base">AI-assistent</h1>
+                <button
+                    onClick={() => embedAll.mutateAsync().catch(() => {})}
+                    disabled={embedAll.isPending}
+                    title="Genindekser alle noter og dagbog (fix manglende søgeresultater)"
+                    className="ml-auto text-xs text-slate-500 hover:text-slate-300 disabled:opacity-40 transition-colors"
+                >
+                    {embedAll.isPending ? <Loader2 size={12} className="animate-spin" /> : 'Genindeks'}
+                </button>
             </div>
 
             {/* Messages */}

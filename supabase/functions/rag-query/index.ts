@@ -91,7 +91,7 @@ Deno.serve(async (req) => {
         const { data: { user }, error: authError } = await supabase.auth.getUser()
         if (authError || !user) throw new Error('Not authenticated')
 
-        const { query } = await req.json() as { query: string }
+        const { query, history = [] } = await req.json() as { query: string; history?: Array<{ role: 'user' | 'assistant'; content: string }> }
         if (!query?.trim()) throw new Error('Missing query')
 
         const openaiKey = Deno.env.get('OPENAI_API_KEY')?.trim()
@@ -173,8 +173,12 @@ Ved oprettelse: brug altid indhold der præcist matcher hvad brugeren bad om.
 Kontekst (brugerens eksisterende noter og dagbog):
 ${context}`
 
+        // Keep at most 10 previous turns to avoid token bloat
+        const recentHistory = history.slice(-10)
+
         const messages: object[] = [
             { role: 'system', content: systemPrompt },
+            ...recentHistory.map(m => ({ role: m.role, content: m.content })),
             { role: 'user', content: query },
         ]
 
@@ -199,7 +203,7 @@ ${context}`
         const assistantMsg = llmData.choices[0].message
 
         // --- Execute tool calls if present ---
-        type ActionTaken = { type: string; id: string; title: string }
+        type ActionTaken = { type: string; id: string; title: string; content: string }
         const actionsTaken: ActionTaken[] = []
 
         if (assistantMsg.tool_calls?.length > 0) {
@@ -218,7 +222,7 @@ ${context}`
                         .single()
                     if (error) { toolResult = `Fejl: ${error.message}` }
                     else {
-                        actionsTaken.push({ type: 'create_note', id: data.id, title: data.title })
+                        actionsTaken.push({ type: 'create_note', id: data.id, title: data.title, content: args.content })
                         toolResult = `Note oprettet med id=${data.id}`
                     }
                 } else if (tc.function.name === 'update_note') {
@@ -229,7 +233,7 @@ ${context}`
                         .eq('user_id', user.id)
                     if (error) { toolResult = `Fejl: ${error.message}` }
                     else {
-                        actionsTaken.push({ type: 'update_note', id: args.id, title: args.title })
+                        actionsTaken.push({ type: 'update_note', id: args.id, title: args.title, content: args.content })
                         toolResult = `Note opdateret`
                     }
                 } else if (tc.function.name === 'create_diary_entry') {
@@ -241,7 +245,7 @@ ${context}`
                         .single()
                     if (error) { toolResult = `Fejl: ${error.message}` }
                     else {
-                        actionsTaken.push({ type: 'create_diary', id: data.id, title: data.entry_date })
+                        actionsTaken.push({ type: 'create_diary', id: data.id, title: data.entry_date, content: args.content })
                         toolResult = `Dagbogsindlæg oprettet med id=${data.id}`
                     }
                 } else if (tc.function.name === 'update_diary_entry') {
@@ -258,7 +262,7 @@ ${context}`
                         .eq('user_id', user.id)
                     if (error) { toolResult = `Fejl: ${error.message}` }
                     else {
-                        actionsTaken.push({ type: 'update_diary', id: args.id, title: args.entry_date ?? args.id })
+                        actionsTaken.push({ type: 'update_diary', id: args.id, title: args.entry_date ?? args.id, content: args.content })
                         toolResult = `Dagbogsindlæg opdateret`
                     }
                 }
@@ -284,15 +288,16 @@ ${context}`
             const llmData2 = await llmRes2.json()
             const answer = llmData2.choices[0].message.content
 
-            // Trigger re-embedding for written documents
+            // Trigger re-embedding for written documents (use full title+content)
             for (const action of actionsTaken) {
                 if (action.type === 'create_note' || action.type === 'update_note') {
+                    const embedText = `${action.title}\n\n${action.content}`.trim()
                     await supabase.functions.invoke('embed-document', {
-                        body: { type: 'note', id: action.id, text: action.title },
+                        body: { type: 'note', id: action.id, text: embedText },
                     }).catch(() => { /* ignore */ })
                 } else if (action.type === 'create_diary' || action.type === 'update_diary') {
                     await supabase.functions.invoke('embed-document', {
-                        body: { type: 'diary', id: action.id, text: action.title },
+                        body: { type: 'diary', id: action.id, text: action.content || action.title },
                     }).catch(() => { /* ignore */ })
                 }
             }

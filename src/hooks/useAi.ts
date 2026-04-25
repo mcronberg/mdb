@@ -32,12 +32,17 @@ export function embedDocument(type: 'note' | 'diary', id: string, text: string):
     })
 }
 
+export interface ChatMessage {
+    role: 'user' | 'assistant'
+    content: string
+}
+
 /** Ask a question using RAG against the user's notes and diary */
 export function useRagQuery() {
     return useMutation({
-        mutationFn: async (query: string): Promise<RagResult> => {
+        mutationFn: async ({ query, history }: { query: string; history: ChatMessage[] }): Promise<RagResult> => {
             const { data, error } = await supabase.functions.invoke('rag-query', {
-                body: { query },
+                body: { query, history },
             })
             if (error) {
                 if (error instanceof FunctionsHttpError) {

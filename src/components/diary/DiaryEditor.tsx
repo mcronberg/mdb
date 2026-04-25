@@ -32,6 +32,7 @@ export default function DiaryEditor({ entry }: Props) {
         editorProps: {
             attributes: {
                 class: 'prose prose-invert prose-sm max-w-none focus:outline-none min-h-[200px]',
+                spellcheck: 'false',
             },
         },
         onUpdate({ editor }) {
