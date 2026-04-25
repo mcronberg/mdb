@@ -17,25 +17,25 @@ export default function App() {
         <QueryClientProvider client={queryClient}>
             <AuthProvider>
                 <VaultProvider>
-                <HashRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-                    <Routes>
-                        <Route path="/" element={<Navigate to="/ai" replace />} />
-                        <Route path="/login" element={<LoginPage />} />
-                        <Route
-                            element={
-                                <ProtectedRoute>
-                                    <AppShell />
-                                </ProtectedRoute>
-                            }
-                        >
-                            <Route path="/notes" element={<NotesPage />} />
-                            <Route path="/diary" element={<DiaryPage />} />
-                            <Route path="/log" element={<LogPage />} />
-                            <Route path="/ai" element={<AiPage />} />
-                            <Route path="/secret" element={<SecretNotesPage />} />
-                        </Route>
-                    </Routes>
-                </HashRouter>
+                    <HashRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+                        <Routes>
+                            <Route path="/" element={<Navigate to="/ai" replace />} />
+                            <Route path="/login" element={<LoginPage />} />
+                            <Route
+                                element={
+                                    <ProtectedRoute>
+                                        <AppShell />
+                                    </ProtectedRoute>
+                                }
+                            >
+                                <Route path="/notes" element={<NotesPage />} />
+                                <Route path="/diary" element={<DiaryPage />} />
+                                <Route path="/log" element={<LogPage />} />
+                                <Route path="/ai" element={<AiPage />} />
+                                <Route path="/secret" element={<SecretNotesPage />} />
+                            </Route>
+                        </Routes>
+                    </HashRouter>
                 </VaultProvider>
             </AuthProvider>
         </QueryClientProvider>
