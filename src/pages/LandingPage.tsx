@@ -1,3 +1,5 @@
+import { Link } from 'react-router-dom'
+
 export default function LandingPage() {
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col items-center justify-center px-4">
@@ -48,6 +50,22 @@ export default function LandingPage() {
               {f}
             </div>
           ))}
+        </div>
+
+        {/* Auth buttons */}
+        <div className="flex gap-3 justify-center">
+          <Link
+            to="/login"
+            className="bg-indigo-600 hover:bg-indigo-500 text-white font-medium rounded-lg px-6 py-2.5 transition-colors"
+          >
+            Log ind
+          </Link>
+          <Link
+            to="/register"
+            className="bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium rounded-lg px-6 py-2.5 transition-colors border border-slate-700"
+          >
+            Opret konto
+          </Link>
         </div>
 
         {/* Footer */}
