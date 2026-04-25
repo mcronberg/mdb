@@ -6,99 +6,98 @@ import { useUpdateDiaryEntry } from '@/hooks/useDiary'
 import type { DiaryEntry } from '@/types'
 
 const MOODS: { value: DiaryEntry['mood']; label: string; emoji: string }[] = [
-  { value: 'great', label: 'Fantastisk', emoji: '😄' },
-  { value: 'good', label: 'God', emoji: '🙂' },
-  { value: 'neutral', label: 'Neutral', emoji: '😐' },
-  { value: 'bad', label: 'Dårlig', emoji: '😕' },
-  { value: 'terrible', label: 'Forfærdelig', emoji: '😞' },
+    { value: 'great', label: 'Fantastisk', emoji: '😄' },
+    { value: 'good', label: 'God', emoji: '🙂' },
+    { value: 'neutral', label: 'Neutral', emoji: '😐' },
+    { value: 'bad', label: 'Dårlig', emoji: '😕' },
+    { value: 'terrible', label: 'Forfærdelig', emoji: '😞' },
 ]
 
 interface Props {
-  entry: DiaryEntry
+    entry: DiaryEntry
 }
 
 export default function DiaryEditor({ entry }: Props) {
-  const { mutate: updateEntry } = useUpdateDiaryEntry()
-  const [mood, setMood] = useState<DiaryEntry['mood']>(entry.mood)
-  const [entryDate, setEntryDate] = useState(entry.entry_date)
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+    const { mutate: updateEntry } = useUpdateDiaryEntry()
+    const [mood, setMood] = useState<DiaryEntry['mood']>(entry.mood)
+    const [entryDate, setEntryDate] = useState(entry.entry_date)
+    const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  const editor = useEditor({
-    extensions: [
-      StarterKit,
-      Markdown.configure({ transformPastedText: true }),
-    ],
-    content: entry.content,
-    editorProps: {
-      attributes: {
-        class: 'prose prose-invert prose-sm max-w-none focus:outline-none min-h-[200px]',
-      },
-    },
-    onUpdate({ editor }) {
-      const markdown = editor.storage.markdown.getMarkdown()
-      schedule(entryDate, mood, markdown)
-    },
-  })
+    const editor = useEditor({
+        extensions: [
+            StarterKit,
+            Markdown.configure({ transformPastedText: true }),
+        ],
+        content: entry.content,
+        editorProps: {
+            attributes: {
+                class: 'prose prose-invert prose-sm max-w-none focus:outline-none min-h-[200px]',
+            },
+        },
+        onUpdate({ editor }) {
+            const markdown = editor.storage.markdown.getMarkdown()
+            schedule(entryDate, mood, markdown)
+        },
+    })
 
-  useEffect(() => {
-    if (editor && editor.storage.markdown.getMarkdown() !== entry.content) {
-      editor.commands.setContent(entry.content)
+    useEffect(() => {
+        if (editor && editor.storage.markdown.getMarkdown() !== entry.content) {
+            editor.commands.setContent(entry.content)
+        }
+        setMood(entry.mood)
+        setEntryDate(entry.entry_date)
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [entry.id])
+
+    function schedule(date: string, m: DiaryEntry['mood'], content: string) {
+        if (debounceRef.current) clearTimeout(debounceRef.current)
+        debounceRef.current = setTimeout(() => {
+            updateEntry({ id: entry.id, content, mood: m, entry_date: date })
+        }, 1000)
     }
-    setMood(entry.mood)
-    setEntryDate(entry.entry_date)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [entry.id])
 
-  function schedule(date: string, m: DiaryEntry['mood'], content: string) {
-    if (debounceRef.current) clearTimeout(debounceRef.current)
-    debounceRef.current = setTimeout(() => {
-      updateEntry({ id: entry.id, content, mood: m, entry_date: date })
-    }, 1000)
-  }
+    function handleMoodChange(m: DiaryEntry['mood']) {
+        setMood(m)
+        const content = editor?.storage.markdown.getMarkdown() ?? entry.content
+        schedule(entryDate, m, content)
+    }
 
-  function handleMoodChange(m: DiaryEntry['mood']) {
-    setMood(m)
-    const content = editor?.storage.markdown.getMarkdown() ?? entry.content
-    schedule(entryDate, m, content)
-  }
+    function handleDateChange(e: React.ChangeEvent<HTMLInputElement>) {
+        const date = e.target.value
+        setEntryDate(date)
+        const content = editor?.storage.markdown.getMarkdown() ?? entry.content
+        schedule(date, mood, content)
+    }
 
-  function handleDateChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const date = e.target.value
-    setEntryDate(date)
-    const content = editor?.storage.markdown.getMarkdown() ?? entry.content
-    schedule(date, mood, content)
-  }
+    return (
+        <div className="flex flex-col h-full gap-4">
+            {/* Meta row */}
+            <div className="flex flex-wrap items-center gap-3 border-b border-slate-800 pb-3">
+                <input
+                    type="date"
+                    value={entryDate}
+                    onChange={handleDateChange}
+                    className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                />
+                <div className="flex gap-1">
+                    {MOODS.map((m) => (
+                        <button
+                            key={m.value}
+                            onClick={() => handleMoodChange(m.value)}
+                            title={m.label}
+                            className={`text-xl px-2 py-1 rounded-lg transition-colors ${mood === m.value
+                                    ? 'bg-indigo-600/30 ring-1 ring-indigo-500'
+                                    : 'hover:bg-slate-800'
+                                }`}
+                        >
+                            {m.emoji}
+                        </button>
+                    ))}
+                </div>
+            </div>
 
-  return (
-    <div className="flex flex-col h-full gap-4">
-      {/* Meta row */}
-      <div className="flex flex-wrap items-center gap-3 border-b border-slate-800 pb-3">
-        <input
-          type="date"
-          value={entryDate}
-          onChange={handleDateChange}
-          className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
-        />
-        <div className="flex gap-1">
-          {MOODS.map((m) => (
-            <button
-              key={m.value}
-              onClick={() => handleMoodChange(m.value)}
-              title={m.label}
-              className={`text-xl px-2 py-1 rounded-lg transition-colors ${
-                mood === m.value
-                  ? 'bg-indigo-600/30 ring-1 ring-indigo-500'
-                  : 'hover:bg-slate-800'
-              }`}
-            >
-              {m.emoji}
-            </button>
-          ))}
+            {/* Editor */}
+            <EditorContent editor={editor} className="flex-1 overflow-y-auto" />
         </div>
-      </div>
-
-      {/* Editor */}
-      <EditorContent editor={editor} className="flex-1 overflow-y-auto" />
-    </div>
-  )
+    )
 }
