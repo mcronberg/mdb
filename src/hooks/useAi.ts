@@ -1,4 +1,5 @@
 import { useMutation } from '@tanstack/react-query'
+import { FunctionsHttpError } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase'
 
 export interface RagSource {
@@ -40,7 +41,13 @@ export function useRagQuery() {
                 body: { query },
                 headers: { Authorization: authHeader },
             })
-            if (error) throw error
+            if (error) {
+                if (error instanceof FunctionsHttpError) {
+                    const body = await error.context.json().catch(() => null)
+                    throw new Error(body?.error ?? error.message)
+                }
+                throw error
+            }
             if (data?.error) throw new Error(data.error)
             return data as RagResult
         },
