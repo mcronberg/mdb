@@ -1,29 +1,36 @@
-import { HashRouter, Routes, Route } from 'react-router-dom'
+import { HashRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { QueryClientProvider } from '@tanstack/react-query'
+import { queryClient } from '@/lib/queryClient'
 import { AuthProvider } from '@/context/AuthContext'
 import ProtectedRoute from '@/components/auth/ProtectedRoute'
-import LandingPage from '@/pages/LandingPage'
+import AppShell from '@/components/layout/AppShell'
 import LoginPage from '@/pages/LoginPage'
-import RegisterPage from '@/pages/RegisterPage'
 import DashboardPage from '@/pages/DashboardPage'
+import NotesPage from '@/pages/NotesPage'
+import DiaryPage from '@/pages/DiaryPage'
 
 export default function App() {
-  return (
-    <AuthProvider>
-      <HashRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-        <Routes>
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute>
-                <DashboardPage />
-              </ProtectedRoute>
-            }
-          />
-        </Routes>
-      </HashRouter>
-    </AuthProvider>
-  )
+    return (
+        <QueryClientProvider client={queryClient}>
+            <AuthProvider>
+                <HashRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+                    <Routes>
+                        <Route path="/" element={<Navigate to="/dashboard" replace />} />
+                        <Route path="/login" element={<LoginPage />} />
+                        <Route
+                            element={
+                                <ProtectedRoute>
+                                    <AppShell />
+                                </ProtectedRoute>
+                            }
+                        >
+                            <Route path="/dashboard" element={<DashboardPage />} />
+                            <Route path="/notes" element={<NotesPage />} />
+                            <Route path="/diary" element={<DiaryPage />} />
+                        </Route>
+                    </Routes>
+                </HashRouter>
+            </AuthProvider>
+        </QueryClientProvider>
+    )
 }

@@ -1,42 +1,34 @@
-import { useAuth } from '@/context/AuthContext'
 import { useNavigate } from 'react-router-dom'
+import { FileText, BookOpen } from 'lucide-react'
 
 export default function DashboardPage() {
-  const { user, signOut } = useAuth()
-  const navigate = useNavigate()
+    const navigate = useNavigate()
 
-  const handleSignOut = async () => {
-    await signOut()
-    navigate('/')
-  }
-
-  return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 p-6">
-      <div className="max-w-4xl mx-auto space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-white">MyDigitalBrain</h1>
-            <p className="text-slate-400 text-sm">{user?.email}</p>
-          </div>
-          <button
-            onClick={handleSignOut}
-            className="text-sm text-slate-400 hover:text-white border border-slate-700 hover:border-slate-500 rounded-lg px-3 py-1.5 transition-colors"
-          >
-            Log ud
-          </button>
+    return (
+        <div className="space-y-6 max-w-2xl">
+            <p className="text-slate-400">Velkommen tilbage.</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <button
+                    onClick={() => navigate('/notes')}
+                    className="bg-slate-900 border border-slate-800 hover:border-indigo-500/50 rounded-xl p-5 text-left space-y-2 transition-colors"
+                >
+                    <div className="flex items-center gap-2 text-indigo-400">
+                        <FileText size={20} />
+                        <span className="font-semibold text-white">Notater</span>
+                    </div>
+                    <p className="text-slate-400 text-sm">Opret og redigér dine notater</p>
+                </button>
+                <button
+                    onClick={() => navigate('/diary')}
+                    className="bg-slate-900 border border-slate-800 hover:border-indigo-500/50 rounded-xl p-5 text-left space-y-2 transition-colors"
+                >
+                    <div className="flex items-center gap-2 text-indigo-400">
+                        <BookOpen size={20} />
+                        <span className="font-semibold text-white">Dagbog</span>
+                    </div>
+                    <p className="text-slate-400 text-sm">Skriv dine dagbogsindlæg</p>
+                </button>
+            </div>
         </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-2">
-            <h2 className="font-semibold text-white">Notater</h2>
-            <p className="text-slate-400 text-sm">Dine noter kommer her</p>
-          </div>
-          <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-2">
-            <h2 className="font-semibold text-white">Dagbog</h2>
-            <p className="text-slate-400 text-sm">Dine dagbogsindlæg kommer her</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  )
+    )
 }

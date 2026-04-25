@@ -1,0 +1,19 @@
+import { Outlet } from 'react-router-dom'
+import Sidebar from './Sidebar'
+import BottomNav from './BottomNav'
+import Header from './Header'
+
+export default function AppShell() {
+    return (
+        <div className="flex min-h-screen bg-slate-950 text-slate-100">
+            <Sidebar />
+            <div className="flex flex-col flex-1 min-w-0">
+                <Header />
+                <main className="flex-1 overflow-y-auto p-5 pb-20 md:pb-5">
+                    <Outlet />
+                </main>
+            </div>
+            <BottomNav />
+        </div>
+    )
+}
