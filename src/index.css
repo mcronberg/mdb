@@ -68,6 +68,21 @@
   outline-offset: 2px;
 }
 
+/* Image thumbnails — click to enlarge */
+.tiptap img {
+  max-width: 160px;
+  height: auto;
+  border-radius: 6px;
+  cursor: zoom-in;
+  display: block;
+}
+
+@media (min-width: 768px) {
+  .tiptap img {
+    max-width: 360px;
+  }
+}
+
 /* Tiptap editor cursor */
 .tiptap p.is-editor-empty:first-child::before {
   content: attr(data-placeholder);

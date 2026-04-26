@@ -9,6 +9,7 @@ import { TableCell } from '@tiptap/extension-table-cell'
 import { Markdown } from 'tiptap-markdown'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import EditorToolbar from './EditorToolbar'
+import ImageLightbox from './ImageLightbox'
 import { useImageUpload } from '@/hooks/useImageUpload'
 
 const AUTOSAVE_DELAY = 5000 // 5 seconds
@@ -31,6 +32,7 @@ export default function RichTextEditor({ content, onSave, withImages = false }: 
     const [rawText, setRawText] = useState(content)
     const [isDirty, setIsDirty] = useState(false)
     const [isInTable, setIsInTable] = useState(false)
+    const [lightboxSrc, setLightboxSrc] = useState<string | null>(null)
 
     const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
     const editorRef = useRef<Editor | null>(null)
@@ -195,7 +197,19 @@ export default function RichTextEditor({ content, onSave, withImages = false }: 
                     className="flex-1 resize-none bg-transparent text-slate-300 font-mono text-sm focus:outline-none p-2 overflow-y-auto"
                 />
             ) : (
-                <EditorContent editor={editor} className="flex-1 overflow-y-auto py-2" />
+                <div
+                    onClick={e => {
+                        const target = e.target as HTMLElement
+                        if (target.tagName === 'IMG') {
+                            setLightboxSrc((target as HTMLImageElement).src)
+                        }
+                    }}
+                >
+                    <EditorContent editor={editor} className="flex-1 overflow-y-auto py-2" />
+                </div>
+            )}
+            {lightboxSrc && (
+                <ImageLightbox src={lightboxSrc} onClose={() => setLightboxSrc(null)} />
             )}
         </div>
     )
