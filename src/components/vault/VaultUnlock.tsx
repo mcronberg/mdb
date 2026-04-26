@@ -61,6 +61,8 @@ export default function VaultUnlock() {
             </div>
 
             <form onSubmit={handleUnlock} className="w-full flex flex-col gap-3">
+                {/* Hidden username field so password managers store vault credentials separately from the main login */}
+                <input type="text" name="username" autoComplete="username" value={`hemmeligt:${user?.email ?? ''}`} readOnly className="hidden" aria-hidden="true" />
                 <input
                     type="password"
                     value={password}
