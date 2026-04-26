@@ -30,9 +30,41 @@
   margin-bottom: 0.75em;
 }
 
+/* Tables in Tiptap editor */
+.tiptap table {
+  border-collapse: collapse;
+  width: 100%;
+  margin-top: 0.75em;
+  margin-bottom: 0.75em;
+  font-size: 0.875em;
+}
+
+.tiptap table td,
+.tiptap table th {
+  border: 1px solid #334155; /* slate-700 */
+  padding: 0.4em 0.75em;
+  vertical-align: top;
+  min-width: 3em;
+  position: relative;
+}
+
+.tiptap table th {
+  background-color: #1e293b; /* slate-800 */
+  font-weight: 600;
+  text-align: left;
+}
+
+.tiptap table .selectedCell::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgb(49 46 129 / 0.4);
+  pointer-events: none;
+}
+
 /* Selected image highlight */
 .tiptap img.ProseMirror-selectednode {
-  outline: 2px solid theme('colors.indigo.500');
+  outline: 2px solid #6366f1; /* indigo-500 */
   outline-offset: 2px;
 }
 

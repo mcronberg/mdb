@@ -1,6 +1,7 @@
 import { useAuth } from '@/context/AuthContext'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { LogOut } from 'lucide-react'
+import { queryClient } from '@/lib/queryClient'
 
 const pageTitles: Record<string, string> = {
     '/dashboard': 'Dashboard',
@@ -15,6 +16,7 @@ export default function Header() {
 
     const handleSignOut = async () => {
         await signOut()
+        queryClient.clear()
         navigate('/login')
     }
 
