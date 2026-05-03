@@ -94,31 +94,28 @@ Deno.serve(async (req) => {
         const { query, history = [] } = await req.json() as { query: string; history?: Array<{ role: 'user' | 'assistant'; content: string }> }
         if (!query?.trim()) throw new Error('Missing query')
 
-        const openaiKey = Deno.env.get('OPENAI_API_KEY')?.trim()
-        if (!openaiKey) throw new Error('OPENAI_API_KEY not configured')
-
         const openrouterKey = Deno.env.get('OPENROUTER_API_KEY')
             ?.trim()
             ?.replace(/^["']|["']$/g, '')   // strip accidental surrounding quotes
             ?.replace(/^Bearer\s+/i, '')    // strip accidental "Bearer " prefix
         if (!openrouterKey) throw new Error('OPENROUTER_API_KEY not configured')
 
-        // Generate query embedding
-        const embRes = await fetch('https://api.openai.com/v1/embeddings', {
+        // Generate query embedding via OpenRouter (text-embedding-3-small, 1536 dims)
+        const embRes = await fetch('https://openrouter.ai/api/v1/embeddings', {
             method: 'POST',
             headers: {
-                'Authorization': `Bearer ${openaiKey}`,
+                'Authorization': `Bearer ${openrouterKey}`,
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                model: 'text-embedding-3-small',
+                model: 'openai/text-embedding-3-small',
                 input: query,
             }),
         })
 
         if (!embRes.ok) {
             const errText = await embRes.text()
-            throw new Error(`OpenAI embedding error (${embRes.status}): ${errText}`)
+            throw new Error(`OpenRouter embedding error (${embRes.status}): ${errText}`)
         }
 
         const embData = await embRes.json()
