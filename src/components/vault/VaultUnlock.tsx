@@ -3,7 +3,7 @@ import { Lock, Loader2, Fingerprint } from 'lucide-react'
 import { useVault } from '@/context/VaultContext'
 import { useAuth } from '@/context/AuthContext'
 import { supabase } from '@/lib/supabase'
-import { decrypt } from '@/lib/crypto'
+import { deriveKey, decrypt } from '@/lib/crypto'
 import {
     hasSavedCredential,
     clearSavedCredential,
@@ -37,10 +37,11 @@ export default function VaultUnlock() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
-    /** Validate the password against Supabase (or accept it if vault is empty). */
+    /** Validate the password WITHOUT touching VaultContext state. */
     async function validatePassword(pw: string): Promise<boolean> {
         if (!user) return false
-        const key = await unlock(pw, user.id)
+        // Derive key locally — do NOT call unlock() yet (would trigger re-render)
+        const key = await deriveKey(pw, user.id)
         try {
             const { data } = await supabase
                 .from('secret_notes')
@@ -51,15 +52,13 @@ export default function VaultUnlock() {
                 try {
                     await decrypt(key, data.title_enc)
                 } catch {
-                    lock()
                     setError('Forkert adgangskode')
                     return false
                 }
             }
         } catch (err: any) {
-            // PGRST116 = no rows — first-time user, password is accepted as-is
+            // PGRST116 = no rows — first-time user, any password is accepted
             if (err?.code !== 'PGRST116') {
-                lock()
                 setError('Forkert adgangskode')
                 return false
             }
@@ -90,8 +89,8 @@ export default function VaultUnlock() {
         setError('')
         try {
             const pw = await authenticateWithBiometric()
-            await validatePassword(pw)
-            // validatePassword calls unlock() internally — vault is now open
+            const ok = await validatePassword(pw)
+            if (ok) await unlock(pw, user!.id)
         } catch (err: any) {
             clearSavedCredential()
             setStep('password')
