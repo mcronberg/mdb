@@ -39,7 +39,7 @@ export default function NotesPage() {
     }
 
     return (
-        <div className="flex h-[calc(100vh-4rem)] -m-5">
+        <div className="flex h-[calc(100dvh-8rem)] md:h-[calc(100dvh-4rem)] -m-3 md:-m-5">
             {/* List — hidden on mobile when editor is open */}
             <div className={`w-full md:w-72 shrink-0 ${showEditor ? 'hidden md:flex' : 'flex'} flex-col`}>
                 <NotesList

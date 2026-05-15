@@ -198,6 +198,7 @@ export default function RichTextEditor({ content, onSave, withImages = false }: 
                 />
             ) : (
                 <div
+                    className="flex-1 min-h-0 overflow-y-auto"
                     onClick={e => {
                         const target = e.target as HTMLElement
                         if (target.tagName === 'IMG') {
@@ -205,7 +206,7 @@ export default function RichTextEditor({ content, onSave, withImages = false }: 
                         }
                     }}
                 >
-                    <EditorContent editor={editor} className="flex-1 overflow-y-auto py-2" />
+                    <EditorContent editor={editor} className="py-2" />
                 </div>
             )}
             {lightboxSrc && (

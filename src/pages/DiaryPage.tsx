@@ -50,7 +50,7 @@ export default function DiaryPage() {
     }
 
     return (
-        <div className="flex h-[calc(100vh-4rem)] -m-5">
+        <div className="flex h-[calc(100dvh-8rem)] md:h-[calc(100dvh-4rem)] -m-3 md:-m-5">
             {/* List */}
             <div className={`w-full md:w-72 shrink-0 ${showEditor ? 'hidden md:flex' : 'flex'} flex-col`}>
                 <DiaryList
