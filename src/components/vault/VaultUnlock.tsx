@@ -42,23 +42,20 @@ export default function VaultUnlock() {
         if (!user) return false
         // Derive key locally — do NOT call unlock() yet (would trigger re-render)
         const key = await deriveKey(pw, user.id)
-        try {
-            const { data } = await supabase
-                .from('secret_notes')
-                .select('title_enc')
-                .limit(1)
-                .single()
-            if (data?.title_enc) {
-                try {
-                    await decrypt(key, data.title_enc)
-                } catch {
-                    setError('Forkert adgangskode')
-                    return false
-                }
-            }
-        } catch (err: any) {
-            // PGRST116 = no rows — first-time user, any password is accepted
-            if (err?.code !== 'PGRST116') {
+        const { data, error } = await supabase
+            .from('secret_notes')
+            .select('title_enc')
+            .limit(1)
+            .single()
+        // PGRST116 = no rows → first-time user, any password is valid
+        if (error && error.code !== 'PGRST116') {
+            setError('Forkert adgangskode')
+            return false
+        }
+        if (data?.title_enc) {
+            try {
+                await decrypt(key, data.title_enc)
+            } catch {
                 setError('Forkert adgangskode')
                 return false
             }
@@ -74,11 +71,11 @@ export default function VaultUnlock() {
         try {
             const ok = await validatePassword(password)
             if (ok) {
-                // Keep vault locked for now and offer biometric setup first
-                lock()
                 setValidatedPassword(password)
                 setStep('offer_bio')
             }
+        } catch {
+            setError('Noget gik galt — prøv igen')
         } finally {
             setLoading(false)
         }
